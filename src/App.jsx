@@ -99,7 +99,9 @@ export default function App() {
                       {task.text}
                     </span>
                     &nbsp;
-                    <button onClick={() => done(task.id)}>❌</button>
+                    <button onClick={() => done(task.id)}>
+                      {task.done ? "✔️" : "❌"}
+                    </button>
                     &nbsp;
                     <button onClick={() => deleteTask(task.id)}>🗑️</button>
                   </li>
