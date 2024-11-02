@@ -44,6 +44,40 @@ export default function App() {
     );
   };
 
+  const moveUp = (id) => {
+    const currentIndexOfTask = todoList.findIndex((task) => task.id === id);
+    const newIndexOfTask =
+      currentIndexOfTask === 0 ? 0 : currentIndexOfTask - 1;
+
+    let tempTodoList = [...todoList];
+    const swappedItem = tempTodoList[newIndexOfTask];
+    const swappingItem = tempTodoList[currentIndexOfTask];
+
+    // doing the swap
+    tempTodoList[newIndexOfTask] = swappingItem;
+    tempTodoList[currentIndexOfTask] = swappedItem;
+
+    setTodoList([...tempTodoList]);
+  };
+
+  const moveDown = (id) => {
+    const currentIndexOfTask = todoList.findIndex((task) => task.id === id);
+    const newIndexOfTask =
+      currentIndexOfTask === todoList.length - 1
+        ? todoList.length - 1
+        : currentIndexOfTask + 1;
+
+    let tempTodoList = [...todoList];
+    const swappedItem = tempTodoList[newIndexOfTask];
+    const swappingItem = tempTodoList[currentIndexOfTask];
+
+    // doing the swap
+    tempTodoList[newIndexOfTask] = swappingItem;
+    tempTodoList[currentIndexOfTask] = swappedItem;
+
+    setTodoList([...tempTodoList]);
+  };
+
   return (
     <main>
       <section>
@@ -99,11 +133,25 @@ export default function App() {
                       {task.text}
                     </span>
                     &nbsp;
-                    <button onClick={() => done(task.id)}>
-                      {task.done ? "✔️" : "❌"}
+                    <button
+                      title={task.done ? "Undone" : "Done"}
+                      onClick={() => done(task.id)}
+                    >
+                      {task.done ? "️❌" : "✅"}
                     </button>
                     &nbsp;
-                    <button onClick={() => deleteTask(task.id)}>🗑️</button>
+                    <button title="Delete" onClick={() => deleteTask(task.id)}>
+                      🗑️
+                    </button>
+                    &nbsp;
+                    <button title="Move Up" onClick={() => moveUp(task.id)}>
+                      ⬆️
+                    </button>
+                    &nbsp;
+                    <button title="Move Down" onClick={() => moveDown(task.id)}>
+                      ⬇️
+                    </button>
+                    &nbsp;
                   </li>
                 ));
             })}
