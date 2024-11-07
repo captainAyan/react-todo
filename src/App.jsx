@@ -54,6 +54,8 @@ export default function App() {
   useEffect(() => {
     if (edittingTaskId) {
       setInput(todoList.find((task) => task.id === edittingTaskId).text);
+    } else {
+      setInput("");
     }
   }, [edittingTaskId]);
 
@@ -122,12 +124,12 @@ export default function App() {
         </p>
 
         <form onSubmit={(e) => (edittingTaskId ? edit(e) : submit(e))}>
-          <input
+          <textarea
             placeholder="Type your task here"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          &nbsp;
+          <br />
           <button type="submit">{edittingTaskId ? "💾" : "✔️"}</button>
           &nbsp;
           {edittingTaskId && (
