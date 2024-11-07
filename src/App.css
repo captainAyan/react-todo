@@ -1,0 +1,13 @@
+body {
+  color: white;
+  background: #333;
+}
+table {
+  border-collapse: collapse;
+}
+table, th, td {
+  border: 1px solid white;
+}
+a {
+  color: white
+}

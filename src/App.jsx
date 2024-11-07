@@ -21,7 +21,13 @@ export default function App() {
     if (input.length !== 0) {
       setTodoList([
         ...todoList,
-        { id: new Date().getTime(), text: input, done: false },
+        {
+          id: generateId(),
+          text: input,
+          done: false,
+          creationTime: new Date().getTime(),
+          completionTime: null,
+        },
       ]);
       setInput("");
     }
@@ -30,7 +36,10 @@ export default function App() {
   const done = (id) => {
     setTodoList(
       todoList.map((task) => {
-        if (task.id === id) task.done = !task.done;
+        if (task.id === id) {
+          task.done = !task.done;
+          task.completionTime = task.done ? new Date().getTime() : null;
+        }
         return task;
       })
     );
@@ -82,7 +91,11 @@ export default function App() {
     <main>
       <section>
         <h1>Todo List</h1>
-
+        <p>
+          <a target="_blank" href="https://github.com/captainAyan/react-todo">
+            Github Repo
+          </a>
+        </p>
         <form onSubmit={submit}>
           <input value={input} onChange={(e) => setInput(e.target.value)} />
           &nbsp;
@@ -91,72 +104,127 @@ export default function App() {
         <p>[{filter.toUpperCase()}]</p>
 
         <nav>
-          <a href="#" onClick={() => setFilter("all")}>
+          <button href="#" onClick={() => setFilter("all")}>
             All
-          </a>
-          &nbsp;|&nbsp;
-          <a href="#" onClick={() => setFilter("completed")}>
+          </button>
+          <button href="#" onClick={() => setFilter("completed")}>
             Completed
-          </a>
-          &nbsp;|&nbsp;
-          <a href="#" onClick={() => setFilter("pending")}>
+          </button>
+          <button href="#" onClick={() => setFilter("pending")}>
             Pending
-          </a>
+          </button>
         </nav>
 
-        <ul>
-          {todoList
-            .filter((task) => {
-              if (filter === "completed") {
-                if (task.done) return task;
-              } else if (filter === "pending") {
-                if (!task.done) return task;
-              } else return task;
-            })
-            .isEmptyProto((isEmpty, arr) => {
-              if (isEmpty) {
+        <table width="100%">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Text</th>
+              <th>Creation</th>
+              <th>Completion</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {todoList
+              .filter((task) => {
                 if (filter === "completed") {
-                  return <p>No completed tasks.</p>;
+                  if (task.done) return task;
                 } else if (filter === "pending") {
-                  return <p>No pending tasks.</p>;
-                } else {
-                  return <p>No tasks.</p>;
-                }
-              } else
-                return arr.map((task) => (
-                  <li key={task.id}>
-                    <span
-                      style={
-                        task.done ? { textDecoration: "line-through" } : null
-                      }
-                    >
-                      {task.text}
-                    </span>
-                    &nbsp;
-                    <button
-                      title={task.done ? "Undone" : "Done"}
-                      onClick={() => done(task.id)}
-                    >
-                      {task.done ? "️❌" : "✅"}
-                    </button>
-                    &nbsp;
-                    <button title="Delete" onClick={() => deleteTask(task.id)}>
-                      🗑️
-                    </button>
-                    &nbsp;
-                    <button title="Move Up" onClick={() => moveUp(task.id)}>
-                      ⬆️
-                    </button>
-                    &nbsp;
-                    <button title="Move Down" onClick={() => moveDown(task.id)}>
-                      ⬇️
-                    </button>
-                    &nbsp;
-                  </li>
-                ));
-            })}
-        </ul>
+                  if (!task.done) return task;
+                } else return task;
+              })
+              .isEmptyProto((isEmpty, arr) => {
+                if (isEmpty) {
+                  return (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: "center" }}>
+                        {filter === "completed" ? (
+                          <b>No completed tasks.</b>
+                        ) : filter === "pending" ? (
+                          <b>No pending tasks.</b>
+                        ) : (
+                          <b>No tasks.</b>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                } else
+                  return arr.map((task) => (
+                    <tr key={task.id}>
+                      <td>{task.id}</td>
+                      <td>
+                        <span
+                          style={
+                            task.done
+                              ? { textDecoration: "line-through" }
+                              : null
+                          }
+                        >
+                          {task.text}
+                        </span>
+                      </td>
+
+                      <td>{getDateText(task.creationTime)}</td>
+
+                      <td>{getDateText(task.completionTime)}</td>
+                      <td>
+                        <button
+                          title={task.done ? "Undone" : "Done"}
+                          onClick={() => done(task.id)}
+                        >
+                          {task.done ? "️❌" : "✅"}
+                        </button>
+                        &nbsp;
+                        <button
+                          title="Delete"
+                          onClick={() => deleteTask(task.id)}
+                        >
+                          🗑️
+                        </button>
+                        &nbsp;
+                        <button title="Move Up" onClick={() => moveUp(task.id)}>
+                          ⬆️
+                        </button>
+                        &nbsp;
+                        <button
+                          title="Move Down"
+                          onClick={() => moveDown(task.id)}
+                        >
+                          ⬇️
+                        </button>
+                      </td>
+                    </tr>
+                  ));
+              })}
+          </tbody>
+        </table>
       </section>
     </main>
   );
+}
+
+function getDateText(t) {
+  if (!t) return "-";
+
+  const timestamp = new Date(t);
+  const day = String(timestamp.getDate()).padStart(2, "0"); // Add leading zero if needed
+  const month = String(timestamp.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed (0 = January)
+  const year = timestamp.getFullYear();
+  const hours = String(timestamp.getHours()).padStart(2, "0");
+  const minutes = String(timestamp.getMinutes()).padStart(2, "0");
+
+  const formattedDateTime = `${day}/${month}/${year} ${hours}:${minutes}`;
+
+  return formattedDateTime;
+}
+
+function generateId() {
+  const characters = "0123456789abcdefghijklmnopqrstuvwxyz"; // characters to use in the ID
+  let id = "";
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length); // pick a random index
+    id += characters[randomIndex]; // append the character at the random index
+  }
+  return id;
 }
