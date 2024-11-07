@@ -12,6 +12,8 @@ export default function App() {
   const [input, setInput] = useState("");
   const [filter, setFilter] = useState("all");
 
+  const [edittingTaskId, setEdittingTaskId] = useState(null);
+
   useEffect(() => {
     localStorage.setItem("todolist", JSON.stringify(todoList));
   }, [todoList]);
@@ -32,6 +34,28 @@ export default function App() {
       setInput("");
     }
   };
+
+  const edit = (e) => {
+    e.preventDefault();
+    if (input.length !== 0) {
+      setTodoList(
+        todoList.map((task) => {
+          if (task.id === edittingTaskId) {
+            task.text = input;
+          }
+          return task;
+        })
+      );
+      setInput("");
+      setEdittingTaskId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (edittingTaskId) {
+      setInput(todoList.find((task) => task.id === edittingTaskId).text);
+    }
+  }, [edittingTaskId]);
 
   const done = (id) => {
     setTodoList(
@@ -96,11 +120,21 @@ export default function App() {
             Github Repo
           </a>
         </p>
-        <form onSubmit={submit}>
-          <input value={input} onChange={(e) => setInput(e.target.value)} />
+
+        <form onSubmit={(e) => (edittingTaskId ? edit(e) : submit(e))}>
+          <input
+            placeholder="Type your task here"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
           &nbsp;
-          <button type="submit">✔️</button>
+          <button type="submit">{edittingTaskId ? "💾" : "✔️"}</button>
+          &nbsp;
+          {edittingTaskId && (
+            <button onClick={() => setEdittingTaskId(null)}>❌</button>
+          )}
         </form>
+
         <p>[{filter.toUpperCase()}]</p>
 
         <nav>
@@ -118,7 +152,7 @@ export default function App() {
         <table width="100%">
           <thead>
             <tr>
-              <th>No.</th>
+              <th>Id</th>
               <th>Text</th>
               <th>Creation</th>
               <th>Completion</th>
@@ -181,6 +215,13 @@ export default function App() {
                           onClick={() => deleteTask(task.id)}
                         >
                           🗑️
+                        </button>
+                        &nbsp;
+                        <button
+                          title="Edit"
+                          onClick={() => setEdittingTaskId(task.id)}
+                        >
+                          ✒️
                         </button>
                         &nbsp;
                         <button title="Move Up" onClick={() => moveUp(task.id)}>
