@@ -211,13 +211,14 @@ export default function App() {
                         >
                           {task.done ? "️❌" : "✅"}
                         </button>
-                        &nbsp;
-                        <button
-                          title="Delete"
-                          onClick={() => deleteTask(task.id)}
-                        >
-                          🗑️
-                        </button>
+                        {task.done && (
+                          <button
+                            title="Delete"
+                            onClick={() => deleteTask(task.id)}
+                          >
+                            🗑️
+                          </button>
+                        )}
                         &nbsp;
                         <button
                           title="Edit"
