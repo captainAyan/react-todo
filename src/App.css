@@ -11,3 +11,7 @@ table, th, td {
 a {
   color: white
 }
+
+td.task_text {
+  white-space: pre-wrap;
+}

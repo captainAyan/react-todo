@@ -189,7 +189,7 @@ export default function App() {
                   return arr.map((task) => (
                     <tr key={task.id}>
                       <td>{task.id}</td>
-                      <td>
+                      <td className="task_text">
                         <span
                           style={
                             task.done
