@@ -138,6 +138,12 @@ export default function App() {
         </form>
 
         <p>[{filter.toUpperCase()}]</p>
+        <p>
+          <progress
+            value={todoList.filter((t) => t.done).length}
+            max={todoList.length}
+          />
+        </p>
 
         <nav>
           <button href="#" onClick={() => setFilter("all")}>
