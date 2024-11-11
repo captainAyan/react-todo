@@ -217,20 +217,21 @@ export default function App() {
                         >
                           {task.done ? "️❌" : "✅"}
                         </button>
-                        {task.done && (
+                        {task.done ? (
                           <button
                             title="Delete"
                             onClick={() => deleteTask(task.id)}
                           >
                             🗑️
                           </button>
+                        ) : (
+                          <button
+                            title="Edit"
+                            onClick={() => setEdittingTaskId(task.id)}
+                          >
+                            ✒️
+                          </button>
                         )}
-                        <button
-                          title="Edit"
-                          onClick={() => setEdittingTaskId(task.id)}
-                        >
-                          ✒️
-                        </button>
                         <button title="Move Up" onClick={() => moveUp(task.id)}>
                           ⬆️
                         </button>
