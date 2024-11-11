@@ -219,18 +219,15 @@ export default function App() {
                             🗑️
                           </button>
                         )}
-                        &nbsp;
                         <button
                           title="Edit"
                           onClick={() => setEdittingTaskId(task.id)}
                         >
                           ✒️
                         </button>
-                        &nbsp;
                         <button title="Move Up" onClick={() => moveUp(task.id)}>
                           ⬆️
                         </button>
-                        &nbsp;
                         <button
                           title="Move Down"
                           onClick={() => moveDown(task.id)}
