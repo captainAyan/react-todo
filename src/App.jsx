@@ -5,6 +5,10 @@ Array.prototype.isEmptyProto = function (cb) {
   return cb(this.length === 0, this);
 };
 
+Array.prototype.conditionalReversal = function (condition) {
+  return condition ? this.reverse() : this;
+};
+
 export default function App() {
   const [todoList, setTodoList] = useState(
     JSON.parse(localStorage.getItem("todolist")) || []
@@ -14,9 +18,14 @@ export default function App() {
 
   const [edittingTaskId, setEdittingTaskId] = useState(null);
 
+  const [isReversed, setIsReversed] = useState(
+    localStorage.getItem("isReversed") === "true"
+  );
+
   useEffect(() => {
     localStorage.setItem("todolist", JSON.stringify(todoList));
-  }, [todoList]);
+    localStorage.setItem("isReversed", isReversed);
+  }, [todoList, isReversed]);
 
   const submit = (e) => {
     e.preventDefault();
@@ -113,6 +122,10 @@ export default function App() {
     setTodoList([...tempTodoList]);
   };
 
+  const handleReversalCheckboxChange = () => {
+    setIsReversed((prevState) => !prevState);
+  };
+
   return (
     <main>
       <section>
@@ -155,6 +168,15 @@ export default function App() {
           <button href="#" onClick={() => setFilter("pending")}>
             Pending
           </button>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={isReversed}
+              onChange={handleReversalCheckboxChange}
+            />
+            Reverse
+          </label>
         </nav>
 
         <table width="100%">
@@ -176,6 +198,7 @@ export default function App() {
                   if (!task.done) return task;
                 } else return task;
               })
+              .conditionalReversal(isReversed)
               .isEmptyProto((isEmpty, arr) => {
                 if (isEmpty) {
                   return (
@@ -232,12 +255,19 @@ export default function App() {
                             ✒️
                           </button>
                         )}
-                        <button title="Move Up" onClick={() => moveUp(task.id)}>
+                        <button
+                          title="Move Up"
+                          onClick={() =>
+                            isReversed ? moveDown(task.id) : moveUp(task.id)
+                          }
+                        >
                           ⬆️
                         </button>
                         <button
                           title="Move Down"
-                          onClick={() => moveDown(task.id)}
+                          onClick={() =>
+                            isReversed ? moveUp(task.id) : moveDown(task.id)
+                          }
                         >
                           ⬇️
                         </button>
