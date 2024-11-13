@@ -27,7 +27,7 @@ export default function App() {
     localStorage.setItem("isReversed", isReversed);
   }, [todoList, isReversed]);
 
-  const submit = (e) => {
+  const addSubmit = (e) => {
     e.preventDefault();
     if (input.length !== 0) {
       setTodoList([
@@ -44,20 +44,24 @@ export default function App() {
     }
   };
 
-  const edit = (e) => {
+  const editSubmit = (e) => {
     e.preventDefault();
     if (input.length !== 0) {
-      setTodoList(
-        todoList.map((task) => {
-          if (task.id === edittingTaskId) {
-            task.text = input;
-          }
-          return task;
-        })
-      );
+      edit(edittingTaskId, input);
       setInput("");
       setEdittingTaskId(null);
     }
+  };
+
+  const edit = (id, newText) => {
+    setTodoList(
+      todoList.map((task) => {
+        if (task.id === id) {
+          task.text = newText;
+        }
+        return task;
+      })
+    );
   };
 
   useEffect(() => {
@@ -136,7 +140,7 @@ export default function App() {
           </a>
         </p>
 
-        <form onSubmit={(e) => (edittingTaskId ? edit(e) : submit(e))}>
+        <form onSubmit={(e) => (edittingTaskId ? editSubmit(e) : addSubmit(e))}>
           <textarea
             placeholder="Type your task here"
             value={input}
@@ -226,7 +230,11 @@ export default function App() {
                               : null
                           }
                         >
-                          {task.text}
+                          <TaskText
+                            taskId={task.id}
+                            lines={extractLines(task.text)}
+                            edit={edit}
+                          />
                         </span>
                       </td>
 
@@ -305,4 +313,60 @@ function generateId() {
     id += characters[randomIndex]; // append the character at the random index
   }
   return id;
+}
+
+function TaskText({ taskId, lines, edit }) {
+  const setIsDone = (index) => {
+    lines[index].isDone = !lines[index].isDone;
+
+    let taskTextBuffer = "";
+    lines.forEach((line, i) => {
+      if (line.isSubTask) {
+        if (line.isDone) taskTextBuffer += "[x]";
+        else taskTextBuffer += "[]";
+        taskTextBuffer += line.text;
+      } else taskTextBuffer += line.text;
+
+      if (i + 1 !== lines.length) taskTextBuffer += "\n";
+    });
+    edit(taskId, taskTextBuffer);
+  };
+
+  return lines.map((line, i) =>
+    line.isSubTask ? (
+      <span key={i}>
+        <input
+          type="checkbox"
+          checked={line.isDone}
+          onChange={() => setIsDone(i)}
+        />
+        <span style={line.isDone ? { textDecoration: "line-through" } : null}>
+          {line.text}
+        </span>
+        <br />
+      </span>
+    ) : (
+      <span key={i}>
+        {line.text}
+        <br />
+      </span>
+    )
+  );
+}
+
+function extractLines(taskText) {
+  const lines = taskText.split("\n");
+
+  const result = lines.map((line) => {
+    const isSubTask = /^\[\s?x?\s?\]/.test(line);
+    const isDone = /^\[\s?x\s?\]/.test(line);
+
+    return {
+      text: line.replace(/^\[\s?x?\s?\]/, ""),
+      isDone,
+      isSubTask,
+    };
+  });
+
+  return result;
 }
