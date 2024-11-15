@@ -13,14 +13,14 @@ export default function App() {
   const [todoList, setTodoList] = useState(
     JSON.parse(localStorage.getItem("todolist")) || []
   );
+  const [isReversed, setIsReversed] = useState(
+    localStorage.getItem("isReversed") === "true"
+  );
+
   const [input, setInput] = useState("");
   const [filter, setFilter] = useState("all");
 
   const [edittingTaskId, setEdittingTaskId] = useState(null);
-
-  const [isReversed, setIsReversed] = useState(
-    localStorage.getItem("isReversed") === "true"
-  );
 
   useEffect(() => {
     localStorage.setItem("todolist", JSON.stringify(todoList));
@@ -44,11 +44,10 @@ export default function App() {
     }
   };
 
-  const editSubmit = (e) => {
+  const editSubmit = (e, id, newText) => {
     e.preventDefault();
-    if (input.length !== 0) {
-      edit(edittingTaskId, input);
-      setInput("");
+    if (newText.length !== 0) {
+      edit(id, newText);
       setEdittingTaskId(null);
     }
   };
@@ -63,14 +62,6 @@ export default function App() {
       })
     );
   };
-
-  useEffect(() => {
-    if (edittingTaskId) {
-      setInput(todoList.find((task) => task.id === edittingTaskId).text);
-    } else {
-      setInput("");
-    }
-  }, [edittingTaskId]);
 
   const done = (id) => {
     setTodoList(
@@ -140,18 +131,15 @@ export default function App() {
           </a>
         </p>
 
-        <form onSubmit={(e) => (edittingTaskId ? editSubmit(e) : addSubmit(e))}>
+        <form onSubmit={(e) => addSubmit(e)}>
           <textarea
             placeholder="Type your task here"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            className="create"
           />
           <br />
-          <button type="submit">{edittingTaskId ? "💾" : "✔️"}</button>
-          &nbsp;
-          {edittingTaskId && (
-            <button onClick={() => setEdittingTaskId(null)}>❌</button>
-          )}
+          <button type="submit">💾</button>
         </form>
 
         <p>[{filter.toUpperCase()}]</p>
@@ -230,11 +218,20 @@ export default function App() {
                               : null
                           }
                         >
-                          <TaskText
-                            taskId={task.id}
-                            lines={extractLines(task.text)}
-                            edit={edit}
-                          />
+                          {edittingTaskId === task.id ? (
+                            <TaskTextEdit
+                              taskId={task.id}
+                              taskText={task.text}
+                              editSubmit={editSubmit}
+                              setEdittingTaskId={setEdittingTaskId}
+                            />
+                          ) : (
+                            <TaskText
+                              taskId={task.id}
+                              lines={extractLines(task.text)}
+                              edit={edit}
+                            />
+                          )}
                         </span>
                       </td>
 
@@ -369,4 +366,26 @@ function extractLines(taskText) {
   });
 
   return result;
+}
+
+function TaskTextEdit({ taskId, taskText, editSubmit, setEdittingTaskId }) {
+  const [newTaskText, setNewTaskText] = useState(taskText);
+
+  return (
+    <>
+      <form onSubmit={(e) => editSubmit(e, taskId, newTaskText)}>
+        <textarea
+          value={newTaskText}
+          onChange={(e) => setNewTaskText(e.target.value)}
+          rows={newTaskText.split("\n").length}
+          className="edit"
+        />
+        <button type="submit">✔️</button>
+        &nbsp;
+        <button type="button" onClick={() => setEdittingTaskId(null)}>
+          ❌
+        </button>
+      </form>
+    </>
+  );
 }
